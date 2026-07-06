@@ -83,8 +83,10 @@ private fun isArrowValidForKind(
 ): Boolean {
     if (arrowText in validArrows) return true
 
-    // Handle variable-length arrows in flowchart/graph (e.g., ----> normalizes to --->)
-    if (kind == MermaidDiagramKind.FLOWCHART || kind == MermaidDiagramKind.GRAPH) {
+    // Handle variable-length arrows in flowchart/graph/swimlane (e.g., ----> normalizes to --->)
+    if (kind == MermaidDiagramKind.FLOWCHART || kind == MermaidDiagramKind.GRAPH ||
+        kind == MermaidDiagramKind.SWIMLANE
+    ) {
         val normalized = arrowText
             .replace(Regex("-{3,}"), "---")
             .replace(Regex("={3,}"), "===")

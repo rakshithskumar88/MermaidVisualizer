@@ -45,7 +45,12 @@ import static com.intellij.psi.TokenType.*;
         // Block diagram
         "columns", "block", "space",
         // Architecture
-        "group", "service", "junction",
+        "group", "service", "junction", "align", "row", "column",
+        // Cynefin
+        "complex", "complicated", "clear", "chaotic", "confusion",
+        // Railroad (IR constructors, railroad-beta)
+        "terminal", "nonterminal", "sequence", "choice",
+        "optional", "zeroOrMore", "oneOrMore", "special",
         // Venn
         "set", "union",
         // Wardley
@@ -107,7 +112,8 @@ HYPHEN_ID = [a-zA-Z_] {ID_CHAR}* ("-" {ID_CHAR}+)*
     "end"                           { yybegin(NORMAL); return END_KW; }
 
     "flowchart"
-    | "graph"                       { yybegin(AFTER_FLOWCHART); return DIAGRAM_TYPE; }
+    | "graph"
+    | "swimlane-beta"               { yybegin(AFTER_FLOWCHART); return DIAGRAM_TYPE; }
 
     "sequenceDiagram"
     | "classDiagram"
@@ -140,7 +146,12 @@ HYPHEN_ID = [a-zA-Z_] {ID_CHAR}* ("-" {ID_CHAR}+)*
     | "treeView-beta"
     | "treemap-beta"
     | "eventmodeling"
-    | "radar-beta"                 { yybegin(NORMAL); return DIAGRAM_TYPE; }
+    | "radar-beta"
+    | "cynefin-beta"
+    | "railroad-beta"
+    | "railroad-ebnf-beta"
+    | "railroad-abnf-beta"
+    | "railroad-peg-beta"          { yybegin(NORMAL); return DIAGRAM_TYPE; }
 
     "---"                           { yybegin(FRONTMATTER); return DIRECTIVE; }
 
@@ -222,6 +233,7 @@ HYPHEN_ID = [a-zA-Z_] {ID_CHAR}* ("-" {ID_CHAR}+)*
     | "-.->"
     | "->>"
     | "<--"
+    | "<-"
     | "-.-"
     | "=="
     | "--"

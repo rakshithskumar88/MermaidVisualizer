@@ -13,7 +13,7 @@
             <li>Zoom (<code>Ctrl+wheel</code>), pan, fit-to-window and 1:1 controls</li>
             <li>Export diagrams as SVG or PNG — copy to clipboard or save to file</li>
             <li>Automatic dark/light theme matching with your IDE</li>
-            <li>All 29+ Mermaid diagram types — fully offline with bundled Mermaid.js (v11.15.0)</li>
+            <li>All 32+ Mermaid diagram types — fully offline with bundled Mermaid.js (v11.16.0)</li>
         </ul>
 
         <h2>Code Intelligence</h2>
@@ -36,6 +36,8 @@
 
         <h2>Usage</h2>
         <p>Write a <code>```mermaid</code> fenced code block in any Markdown file and open the preview, or open any <code>.mmd</code>/<code>.mermaid</code> file.</p>
+
+        <p>Open source (Apache 2.0) — <a href="https://github.com/Alex9583/MermaidVisualizer">source code, issues &amp; feedback on GitHub</a>.</p>
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>
