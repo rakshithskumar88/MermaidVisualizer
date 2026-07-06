@@ -47,6 +47,12 @@ enum class MermaidDiagramKind(val keyword: String, val displayKey: String) {
     TREEMAP("treemap-beta", "completion.mermaid.diagram.treemap"),
     EVENT_MODELING("eventmodeling", "completion.mermaid.diagram.eventModeling"),
     RADAR("radar-beta", "completion.mermaid.diagram.radar"),
+    CYNEFIN("cynefin-beta", "completion.mermaid.diagram.cynefin"),
+    RAILROAD("railroad-beta", "completion.mermaid.diagram.railroad"),
+    RAILROAD_EBNF("railroad-ebnf-beta", "completion.mermaid.diagram.railroad"),
+    RAILROAD_ABNF("railroad-abnf-beta", "completion.mermaid.diagram.railroad"),
+    RAILROAD_PEG("railroad-peg-beta", "completion.mermaid.diagram.railroad"),
+    SWIMLANE("swimlane-beta", "completion.mermaid.diagram.swimlane"),
 }
 
 /**
@@ -119,7 +125,9 @@ object MermaidCompletionData {
 
     private val BLOCK_KEYWORDS = setOf("columns", "block", "space", "end")
 
-    private val ARCHITECTURE_KEYWORDS = setOf("group", "service", "junction")
+    private val ARCHITECTURE_KEYWORDS = setOf(
+        "group", "service", "junction", "align", "row", "column",
+    )
 
     private val REQUIREMENT_KEYWORDS = setOf(
         "element", "requirement", "functionalRequirement",
@@ -162,6 +170,21 @@ object MermaidCompletionData {
         "max", "min", "graticule", "ticks",
     )
 
+    private val CYNEFIN_KEYWORDS = setOf(
+        "title", "complex", "complicated", "clear", "chaotic", "confusion",
+    )
+
+    private val SWIMLANE_KEYWORDS = setOf("subgraph", "end")
+
+    /** IR constructors for railroad-beta (explicit constructor notation). */
+    private val RAILROAD_IR_KEYWORDS = setOf(
+        "title", "terminal", "nonterminal", "sequence", "choice",
+        "optional", "zeroOrMore", "oneOrMore", "special",
+    )
+
+    /** EBNF/ABNF/PEG notations only reserve `title`; rule bodies are grammar text. */
+    private val RAILROAD_NOTATION_KEYWORDS = setOf("title")
+
     private val KEYWORDS_BY_KIND: Map<MermaidDiagramKind, Set<String>> by lazy {
         val map = mapOf(
             MermaidDiagramKind.FLOWCHART to FLOWCHART_KEYWORDS,
@@ -198,6 +221,12 @@ object MermaidCompletionData {
             MermaidDiagramKind.TREEMAP to emptySet(),
             MermaidDiagramKind.EVENT_MODELING to EVENT_MODELING_KEYWORDS,
             MermaidDiagramKind.RADAR to RADAR_KEYWORDS,
+            MermaidDiagramKind.CYNEFIN to CYNEFIN_KEYWORDS,
+            MermaidDiagramKind.RAILROAD to RAILROAD_IR_KEYWORDS,
+            MermaidDiagramKind.RAILROAD_EBNF to RAILROAD_NOTATION_KEYWORDS,
+            MermaidDiagramKind.RAILROAD_ABNF to RAILROAD_NOTATION_KEYWORDS,
+            MermaidDiagramKind.RAILROAD_PEG to RAILROAD_NOTATION_KEYWORDS,
+            MermaidDiagramKind.SWIMLANE to SWIMLANE_KEYWORDS,
         )
         val missing = MermaidDiagramKind.entries.toSet() - map.keys
         check(missing.isEmpty()) { "KEYWORDS_BY_KIND missing entries for: $missing" }
@@ -220,7 +249,10 @@ object MermaidCompletionData {
 
     /** Block keywords that open a block...end structure for a given diagram kind. */
     fun blockKeywordsFor(kind: MermaidDiagramKind): Set<String> = when (kind) {
-        MermaidDiagramKind.FLOWCHART, MermaidDiagramKind.GRAPH -> FLOWCHART_BLOCK_KEYWORDS
+        MermaidDiagramKind.FLOWCHART,
+        MermaidDiagramKind.GRAPH,
+        MermaidDiagramKind.SWIMLANE,
+        -> FLOWCHART_BLOCK_KEYWORDS
         MermaidDiagramKind.SEQUENCE -> SEQUENCE_BLOCK_KEYWORDS
         MermaidDiagramKind.CLASS -> CLASS_BLOCK_KEYWORDS
         MermaidDiagramKind.BLOCK -> setOf("block")
@@ -252,6 +284,11 @@ object MermaidCompletionData {
         MermaidDiagramKind.TREEMAP,
         MermaidDiagramKind.EVENT_MODELING,
         MermaidDiagramKind.RADAR,
+        MermaidDiagramKind.CYNEFIN,
+        MermaidDiagramKind.RAILROAD,
+        MermaidDiagramKind.RAILROAD_EBNF,
+        MermaidDiagramKind.RAILROAD_ABNF,
+        MermaidDiagramKind.RAILROAD_PEG,
         -> emptySet()
         MermaidDiagramKind.WARDLEY -> setOf("pipeline")
     }
@@ -292,6 +329,12 @@ object MermaidCompletionData {
         MermaidDiagramKind.TREEMAP,
         MermaidDiagramKind.EVENT_MODELING,
         MermaidDiagramKind.RADAR,
+        MermaidDiagramKind.CYNEFIN,
+        MermaidDiagramKind.RAILROAD,
+        MermaidDiagramKind.RAILROAD_EBNF,
+        MermaidDiagramKind.RAILROAD_ABNF,
+        MermaidDiagramKind.RAILROAD_PEG,
+        MermaidDiagramKind.SWIMLANE,
         -> emptySet()
     }
 
@@ -349,6 +392,10 @@ object MermaidCompletionData {
         ArrowEntry("-->", "completion.mermaid.arrow.transition"),
     )
 
+    private val CYNEFIN_ARROWS = listOf(
+        ArrowEntry("-->", "completion.mermaid.arrow.transition"),
+    )
+
     private val ARROWS_BY_KIND: Map<MermaidDiagramKind, List<ArrowEntry>> by lazy {
         val map = mapOf(
             MermaidDiagramKind.FLOWCHART to FLOWCHART_ARROWS,
@@ -385,6 +432,12 @@ object MermaidCompletionData {
             MermaidDiagramKind.TREEMAP to emptyList(),
             MermaidDiagramKind.EVENT_MODELING to emptyList(),
             MermaidDiagramKind.RADAR to emptyList(),
+            MermaidDiagramKind.CYNEFIN to CYNEFIN_ARROWS,
+            MermaidDiagramKind.RAILROAD to emptyList(),
+            MermaidDiagramKind.RAILROAD_EBNF to emptyList(),
+            MermaidDiagramKind.RAILROAD_ABNF to emptyList(),
+            MermaidDiagramKind.RAILROAD_PEG to emptyList(),
+            MermaidDiagramKind.SWIMLANE to FLOWCHART_ARROWS,
         )
         val missing = MermaidDiagramKind.entries.toSet() - map.keys
         check(missing.isEmpty()) { "ARROWS_BY_KIND missing entries for: $missing" }

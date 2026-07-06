@@ -241,6 +241,47 @@ class MermaidCompletionContributorTest : BasePlatformTestCase() {
         assertTrue("Expected root", completions.contains("root"))
     }
 
+    // ── New diagram types (Mermaid 11.16.0) ────────────────────────────
+
+    fun testDiagramTypeCompletionIncludesNewTypes() {
+        val completions = completionsAt("<caret>")
+        assertTrue("Expected cynefin-beta", completions.contains("cynefin-beta"))
+        assertTrue("Expected railroad-beta", completions.contains("railroad-beta"))
+        assertTrue("Expected railroad-ebnf-beta", completions.contains("railroad-ebnf-beta"))
+        assertTrue("Expected swimlane-beta", completions.contains("swimlane-beta"))
+    }
+
+    fun testCynefinKeywords() {
+        val completions = completionsAt("cynefin-beta\n    <caret>")
+        assertTrue("Expected complex", completions.contains("complex"))
+        assertTrue("Expected complicated", completions.contains("complicated"))
+        assertTrue("Expected clear", completions.contains("clear"))
+        assertTrue("Expected chaotic", completions.contains("chaotic"))
+        assertTrue("Expected confusion", completions.contains("confusion"))
+        assertFalse("Should not offer subgraph", completions.contains("subgraph"))
+    }
+
+    fun testSwimlaneKeywords() {
+        val completions = completionsAt("swimlane-beta LR\n    <caret>")
+        assertTrue("Expected subgraph", completions.contains("subgraph"))
+        assertFalse("Should not offer participant", completions.contains("participant"))
+    }
+
+    fun testRailroadIrKeywords() {
+        val completions = completionsAt("railroad-beta\n    <caret>")
+        assertTrue("Expected terminal", completions.contains("terminal"))
+        assertTrue("Expected choice", completions.contains("choice"))
+        assertTrue("Expected zeroOrMore", completions.contains("zeroOrMore"))
+        assertFalse("Should not offer subgraph", completions.contains("subgraph"))
+    }
+
+    fun testArchitectureAlignKeyword() {
+        val completions = completionsAt("architecture-beta\n    <caret>")
+        assertTrue("Expected align", completions.contains("align"))
+        assertTrue("Expected group", completions.contains("group"))
+        assertTrue("Expected service", completions.contains("service"))
+    }
+
     // ── Arrow completion ───────────────────────────────────────────────
 
     fun testArrowsInFlowchartAfterIdentifier() {

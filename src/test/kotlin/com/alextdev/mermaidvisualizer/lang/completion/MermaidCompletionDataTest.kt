@@ -20,7 +20,9 @@ class MermaidCompletionDataTest {
             "zenuml", "kanban", "block-beta", "packet-beta",
             "architecture-beta", "venn-beta", "ishikawa-beta",
             "wardley-beta", "treeView-beta", "treemap-beta",
-            "eventmodeling", "radar-beta",
+            "eventmodeling", "radar-beta", "cynefin-beta",
+            "railroad-beta", "railroad-ebnf-beta", "railroad-abnf-beta",
+            "railroad-peg-beta", "swimlane-beta",
         )
         val actual = MermaidDiagramKind.entries.map { it.keyword }.toSet()
         assertEquals(expectedKeywords, actual)
@@ -63,6 +65,7 @@ class MermaidCompletionDataTest {
             MermaidDiagramKind.FLOWCHART, MermaidDiagramKind.GRAPH,
             MermaidDiagramKind.SEQUENCE, MermaidDiagramKind.CLASS,
             MermaidDiagramKind.ER, MermaidDiagramKind.STATE, MermaidDiagramKind.STATE_V1,
+            MermaidDiagramKind.CYNEFIN, MermaidDiagramKind.SWIMLANE,
         )
         for (kind in typesWithArrows) {
             val arrows = MermaidCompletionData.arrowsFor(kind)
@@ -91,8 +94,11 @@ class MermaidCompletionDataTest {
             MermaidCompletionData.blockKeywordsFor(MermaidDiagramKind.SEQUENCE),
         )
         assertEquals(setOf("namespace"), MermaidCompletionData.blockKeywordsFor(MermaidDiagramKind.CLASS))
+        assertEquals(setOf("subgraph"), MermaidCompletionData.blockKeywordsFor(MermaidDiagramKind.SWIMLANE))
         assertTrue(MermaidCompletionData.blockKeywordsFor(MermaidDiagramKind.ER).isEmpty())
         assertTrue(MermaidCompletionData.blockKeywordsFor(MermaidDiagramKind.STATE).isEmpty())
+        assertTrue(MermaidCompletionData.blockKeywordsFor(MermaidDiagramKind.CYNEFIN).isEmpty())
+        assertTrue(MermaidCompletionData.blockKeywordsFor(MermaidDiagramKind.RAILROAD).isEmpty())
     }
 
     @Test
@@ -149,6 +155,53 @@ class MermaidCompletionDataTest {
             "ui", "pcr", "processor", "cmd", "command",
             "rmo", "readmodel", "evt", "event",
         )))
+    }
+
+    @Test
+    fun testCynefinKeywordsContainExpected() {
+        val keywords = MermaidCompletionData.keywordsFor(MermaidDiagramKind.CYNEFIN)
+        assertTrue(keywords.containsAll(setOf(
+            "title", "complex", "complicated", "clear", "chaotic", "confusion",
+        )))
+        assertFalse(keywords.contains("subgraph"))
+    }
+
+    @Test
+    fun testSwimlaneKeywordsContainExpected() {
+        val keywords = MermaidCompletionData.keywordsFor(MermaidDiagramKind.SWIMLANE)
+        assertTrue(keywords.containsAll(setOf("subgraph", "end")))
+        assertFalse(keywords.contains("participant"))
+    }
+
+    @Test
+    fun testArchitectureKeywordsContainExpected() {
+        val keywords = MermaidCompletionData.keywordsFor(MermaidDiagramKind.ARCHITECTURE)
+        assertTrue(keywords.containsAll(setOf(
+            "group", "service", "junction", "align", "row", "column",
+        )))
+    }
+
+    @Test
+    fun testRailroadIrKeywordsContainConstructors() {
+        val keywords = MermaidCompletionData.keywordsFor(MermaidDiagramKind.RAILROAD)
+        assertTrue(keywords.containsAll(setOf(
+            "title", "terminal", "nonterminal", "sequence", "choice",
+            "optional", "zeroOrMore", "oneOrMore", "special",
+        )))
+    }
+
+    @Test
+    fun testRailroadNotationKeywordsAreTitleOnly() {
+        for (kind in setOf(
+            MermaidDiagramKind.RAILROAD_EBNF,
+            MermaidDiagramKind.RAILROAD_ABNF,
+            MermaidDiagramKind.RAILROAD_PEG,
+        )) {
+            val keywords = MermaidCompletionData.keywordsFor(kind)
+            assertTrue(keywords.contains("title"), "title missing for $kind")
+            assertFalse(keywords.contains("terminal"),
+                "IR constructors should not leak into notation kind $kind")
+        }
     }
 
     @Test

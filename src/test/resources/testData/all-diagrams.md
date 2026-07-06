@@ -1,6 +1,6 @@
 # All Mermaid Diagram Types
 
-Test file covering all 29+ Mermaid diagram types for manual and automated verification.
+Test file covering all 32+ Mermaid diagram types for manual and automated verification.
 
 ## 1. Flowchart
 
@@ -110,6 +110,25 @@ pie title Pets adopted
     "Dogs" : 386
     "Cats" : 85
     "Rats" : 15
+```
+
+Donut / legend position / highlight slice via config (v11.16.0+):
+
+```mermaid
+---
+config:
+  pie:
+    textPosition: 0.5
+    donutHole: 0.2
+    legendPosition: bottom
+    highlightSlice: Potassium
+---
+pie showData
+    title Key elements in Product X
+    "Calcium" : 42.96
+    "Potassium" : 50.05
+    "Magnesium" : 10.01
+    "Iron" :  5
 ```
 
 ## 10. Git Graph
@@ -394,6 +413,72 @@ radar-beta
   showLegend true
   max 10
   ticks 5
+```
+
+## 30. Cynefin Framework (beta)
+
+```mermaid
+cynefin-beta
+  title Incident Response
+
+  complex
+    "Investigate root cause"
+    "Run chaos experiment"
+
+  complicated
+    "Analyze performance data"
+
+  clear
+    "Restart service"
+    "Apply known fix"
+
+  chaotic
+    "Page on-call immediately"
+
+  confusion
+    "Unknown failure mode"
+
+  complex --> complicated : "Pattern identified"
+  clear --> chaotic : "Complacency"
+```
+
+## 31. Railroad Diagram (beta)
+
+```mermaid
+railroad-ebnf-beta
+title "Arithmetic Expression Grammar"
+
+expression = term ( ( "+" | "-" ) term )* ;
+term = factor ( ( "*" | "/" ) factor )* ;
+factor = number | "(" expression ")" ;
+number = digit+ ;
+digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+```
+
+```mermaid
+railroad-peg-beta
+title "Identifiers (keywords excluded)"
+
+Identifier <- !Keyword Letter Letter* ;
+Keyword <- "if" / "else" / "while" ;
+Letter <- "a" / "b" / "c" / "_" ;
+```
+
+## 32. Swimlane (beta)
+
+```mermaid
+swimlane-beta LR
+  subgraph sales [Sales team]
+    lead[Qualify lead]
+    quote[Prepare quote]
+  end
+
+  subgraph finance [Finance team]
+    review[Review terms]
+    approve[Approve quote]
+  end
+
+  lead --> quote --> review --> approve
 ```
 
 ---

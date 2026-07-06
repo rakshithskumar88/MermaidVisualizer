@@ -90,7 +90,9 @@ class MermaidLexerTest {
         "kanban", "block-beta", "packet-beta", "architecture-beta",
         "venn-beta", "ishikawa-beta",
         "wardley-beta", "treeView-beta", "treemap-beta",
-        "eventmodeling", "radar-beta"
+        "eventmodeling", "radar-beta", "cynefin-beta",
+        "railroad-beta", "railroad-ebnf-beta", "railroad-abnf-beta",
+        "railroad-peg-beta", "swimlane-beta"
     ])
     fun testDiagramTypeAtLineStart(diagramType: String) {
         val tokens = nonWhitespaceTokens(diagramType)
@@ -356,6 +358,15 @@ class MermaidLexerTest {
 
     @ParameterizedTest
     @ValueSource(strings = ["LR", "RL", "TD", "TB", "BT"])
+    fun testDirectionKeywordsAfterSwimlane(dir: String) {
+        val tokens = nonWhitespaceTokens("swimlane-beta $dir")
+        assertEquals(MermaidTokenTypes.DIAGRAM_TYPE, tokens[0].first)
+        assertEquals(MermaidTokenTypes.KEYWORD, tokens[1].first,
+            "$dir should be KEYWORD after swimlane-beta")
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["LR", "RL", "TD", "TB", "BT"])
     fun testDirectionNotKeywordAsNodeName(dir: String) {
         // On a subsequent line, direction abbreviations are just identifiers
         val tokens = nonWhitespaceTokens("flowchart LR\n    ${dir}[Exit]")
@@ -394,7 +405,12 @@ class MermaidLexerTest {
         // Block
         "columns", "block", "space",
         // Architecture
-        "group", "service", "junction",
+        "group", "service", "junction", "align", "row", "column",
+        // Cynefin
+        "complex", "complicated", "clear", "chaotic", "confusion",
+        // Railroad (IR constructors)
+        "terminal", "nonterminal", "sequence", "choice",
+        "optional", "zeroOrMore", "oneOrMore", "special",
         // Venn
         "set", "union",
         // Wardley
@@ -593,6 +609,86 @@ class MermaidLexerTest {
         val tokens = nonWhitespaceTokens(input)
         assertEquals(MermaidTokenTypes.DIAGRAM_TYPE, tokens[0].first)
         assertEquals("treemap-beta", tokens[0].second)
+    }
+
+    @Test
+    fun testCynefinDiagramSnippet() {
+        val input = """
+            cynefin-beta
+              title Incident Response
+              complex
+                "Investigate root cause"
+              clear
+                "Restart service"
+              complex --> complicated : "Pattern identified"
+        """.trimIndent()
+        val tokens = nonWhitespaceTokens(input)
+        assertEquals(MermaidTokenTypes.DIAGRAM_TYPE, tokens[0].first)
+        assertEquals("cynefin-beta", tokens[0].second)
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.KEYWORD && it.second == "complex" })
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.KEYWORD && it.second == "clear" })
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.KEYWORD && it.second == "complicated" })
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.ARROW && it.second == "-->" })
+    }
+
+    @Test
+    fun testRailroadEbnfDiagramSnippet() {
+        val input = """
+            railroad-ebnf-beta
+            title "Digit Definition"
+
+            digit = "0" | "1" | "2" ;
+        """.trimIndent()
+        val tokens = nonWhitespaceTokens(input)
+        assertEquals(MermaidTokenTypes.DIAGRAM_TYPE, tokens[0].first)
+        assertEquals("railroad-ebnf-beta", tokens[0].second)
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.KEYWORD && it.second == "title" })
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.PIPE })
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.SEMICOLON })
+    }
+
+    @Test
+    fun testRailroadPegAssignmentArrow() {
+        val input = """
+            railroad-peg-beta
+            Expression <- Term ;
+        """.trimIndent()
+        val tokens = nonWhitespaceTokens(input)
+        assertEquals(MermaidTokenTypes.DIAGRAM_TYPE, tokens[0].first)
+        assertEquals("railroad-peg-beta", tokens[0].second)
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.ARROW && it.second == "<-" },
+            "PEG assignment operator <- should be ARROW (got: $tokens)")
+    }
+
+    @Test
+    fun testRailroadIrConstructorKeywords() {
+        val input = """
+            railroad-beta
+            digit = choice(terminal("0"), terminal("1")) ;
+        """.trimIndent()
+        val tokens = nonWhitespaceTokens(input)
+        assertEquals(MermaidTokenTypes.DIAGRAM_TYPE, tokens[0].first)
+        assertEquals("railroad-beta", tokens[0].second)
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.KEYWORD && it.second == "choice" })
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.KEYWORD && it.second == "terminal" })
+    }
+
+    @Test
+    fun testSwimlaneDiagramSnippet() {
+        val input = """
+            swimlane-beta LR
+              subgraph sales [Sales team]
+                lead[Qualify lead]
+              end
+              lead --> quote
+        """.trimIndent()
+        val tokens = nonWhitespaceTokens(input)
+        assertEquals(MermaidTokenTypes.DIAGRAM_TYPE, tokens[0].first)
+        assertEquals("swimlane-beta", tokens[0].second)
+        assertEquals(MermaidTokenTypes.KEYWORD, tokens[1].first, "LR should be KEYWORD after swimlane-beta")
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.KEYWORD && it.second == "subgraph" })
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.END_KW && it.second == "end" })
+        assertTrue(tokens.any { it.first == MermaidTokenTypes.ARROW && it.second == "-->" })
     }
 
     @Test
