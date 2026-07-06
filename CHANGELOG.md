@@ -2,6 +2,10 @@
 
 All notable changes to the Mermaid Visualizer plugin will be documented in this file.
 
+## [1.9.0] - 2026-07-06
+
+- Update Mermaid.js to v11.16.0 with Cynefin, Railroad, and Swimlane diagram support (#20)
+
 ## [1.8.0] - 2026-06-22
 
 - Add custom background/line colors and configurable canvas height (#18)
