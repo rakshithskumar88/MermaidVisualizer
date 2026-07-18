@@ -124,6 +124,9 @@
                         }
                     });
                 }
+                core.installLinkHandler(container.shadowRoot, function (url) {
+                    if (typeof window.__openLinkBridge === 'function') window.__openLinkBridge(url);
+                });
             } else {
                 core.showError(container, shadowCss, 'Unexpected render result', renderId, isDark);
                 reportRenderResult({ status: 'error', message: 'Unexpected render result', line: null, column: null }, generation);

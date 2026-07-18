@@ -98,6 +98,14 @@ class MermaidZoomJsTest {
         }
 
         @Test
+        fun `double-click ignores linked nodes`() {
+            assertTrue(
+                jsContent.contains("e.target.closest('a')"),
+                "dblclick on an anchor must not toggle fit — the link handler owns those clicks"
+            )
+        }
+
+        @Test
         fun `applies CSS transform for zoom and pan`() {
             assertTrue(jsContent.contains("transform"), "Should apply CSS transform for zoom/pan")
         }

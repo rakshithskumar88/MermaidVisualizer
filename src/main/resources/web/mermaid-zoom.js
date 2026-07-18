@@ -286,7 +286,10 @@
         viewport.addEventListener('mousemove', function (e) { onMouseMove(e, state); });
         viewport.addEventListener('mouseup', function () { onMouseUp(state); });
         viewport.addEventListener('mouseleave', function () { onMouseUp(state); });
-        viewport.addEventListener('dblclick', function () { onDblClick(state); });
+        viewport.addEventListener('dblclick', function (e) {
+            if (e.target && e.target.closest && e.target.closest('a')) return;
+            onDblClick(state);
+        });
     }
 
     // --- DOM wrapping ---
