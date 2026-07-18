@@ -210,4 +210,13 @@ class MermaidRenderJsExportTest {
             "Should have reInitAndRenderAll for config and theme changes"
         )
     }
+
+    @Test
+    fun `render js installs link handler posting to open-link tag`() {
+        assertTrue(jsContent.contains("installLinkHandler"), "Should install the shared link click handler")
+        assertTrue(
+            jsContent.contains("mermaid/open-link"),
+            "Link clicks should be posted on the mermaid/open-link BrowserPipe tag"
+        )
+    }
 }

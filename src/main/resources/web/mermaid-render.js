@@ -104,6 +104,11 @@
                         maxHeightPercent: (window.__MERMAID_CONFIG && window.__MERMAID_CONFIG.maxHeightPercent) || 60
                     });
                 }
+                // Lazy lookup — installed once per root, the pipe may not exist on first render.
+                core.installLinkHandler(container.shadowRoot, function (url) {
+                    const tools = window.__IntelliJTools;
+                    if (tools && tools.messagePipe) tools.messagePipe.post('mermaid/open-link', url);
+                });
             } else {
                 core.showError(container, shadowCss, 'Unexpected render result', renderId, isDark);
             }

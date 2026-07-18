@@ -2,6 +2,7 @@ package com.alextdev.mermaidvisualizer.editor
 
 import com.alextdev.mermaidvisualizer.copyPngToClipboard
 import com.alextdev.mermaidvisualizer.copySvgToClipboard
+import com.alextdev.mermaidvisualizer.openExternalLink
 import com.alextdev.mermaidvisualizer.saveDiagramToFile
 import com.alextdev.mermaidvisualizer.settings.MermaidSettings
 import com.intellij.openapi.Disposable
@@ -16,8 +17,11 @@ import com.intellij.ui.jcef.JBCefBrowserBase
 import com.intellij.ui.jcef.JBCefJSQuery
 import org.cef.browser.CefBrowser
 import org.cef.browser.CefFrame
+import org.cef.handler.CefLifeSpanHandlerAdapter
 import org.cef.handler.CefLoadHandler
 import org.cef.handler.CefLoadHandlerAdapter
+import org.cef.handler.CefRequestHandlerAdapter
+import org.cef.network.CefRequest
 import java.io.IOException
 import java.util.Base64
 import javax.swing.JComponent
@@ -39,6 +43,7 @@ internal class MermaidPreviewPanel(
     private val copyPngQuery: JBCefJSQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val saveQuery: JBCefJSQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val errorQuery: JBCefJSQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+    private val openLinkQuery: JBCefJSQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private var errorCallback: ((String) -> Unit)? = null
 
     val component: JComponent get() = browser.component
@@ -50,6 +55,7 @@ internal class MermaidPreviewPanel(
         Disposer.register(parentDisposable, copyPngQuery)
         Disposer.register(parentDisposable, saveQuery)
         Disposer.register(parentDisposable, errorQuery)
+        Disposer.register(parentDisposable, openLinkQuery)
 
         scrollQuery.addHandler { fractionStr ->
             val fraction = fractionStr.toDoubleOrNull()
@@ -87,6 +93,11 @@ internal class MermaidPreviewPanel(
             null
         }
 
+        openLinkQuery.addHandler { url ->
+            openExternalLink(url)
+            null
+        }
+
         browser.jbCefClient.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadEnd(cefBrowser: CefBrowser?, frame: CefFrame?, httpStatusCode: Int) {
                 if (frame?.isMain == true) {
@@ -99,6 +110,7 @@ internal class MermaidPreviewPanel(
                         injectScrollBridge()
                         injectExportBridges()
                         injectErrorBridge()
+                        injectOpenLinkBridge()
                         pendingRender?.invoke()
                         pendingRender = null
                     }
@@ -131,6 +143,37 @@ internal class MermaidPreviewPanel(
                         0,
                     )
                 }
+            }
+        }, browser.cefBrowser)
+
+        browser.jbCefClient.addLifeSpanHandler(object : CefLifeSpanHandlerAdapter() {
+            override fun onBeforePopup(
+                cefBrowser: CefBrowser?,
+                frame: CefFrame?,
+                targetUrl: String?,
+                targetFrameName: String?,
+            ): Boolean {
+                // Mermaid links default to target="_blank" — open externally, never a JCEF popup.
+                if (targetUrl != null) openExternalLink(targetUrl)
+                return true
+            }
+        }, browser.cefBrowser)
+
+        browser.jbCefClient.addRequestHandler(object : CefRequestHandlerAdapter() {
+            override fun onBeforeBrowse(
+                cefBrowser: CefBrowser?,
+                frame: CefFrame?,
+                request: CefRequest?,
+                userGesture: Boolean,
+                isRedirect: Boolean,
+            ): Boolean {
+                // The page is fully inlined — any http(s) navigation is a link escaping the JS handler.
+                val url = request?.url ?: return false
+                if (url.startsWith("http://", ignoreCase = true) || url.startsWith("https://", ignoreCase = true)) {
+                    openExternalLink(url)
+                    return true
+                }
+                return false
             }
         }, browser.cefBrowser)
 
@@ -196,6 +239,13 @@ internal class MermaidPreviewPanel(
         val injection = errorQuery.inject("payload")
         val js = "window.__mermaidErrorBridge = function(payload) { $injection };"
         browser.cefBrowser.executeJavaScript(js, "mermaid-error-bridge", 0)
+    }
+
+    private fun injectOpenLinkBridge() {
+        if (browser.isDisposed) return
+        val injection = openLinkQuery.inject("url")
+        val js = "window.__openLinkBridge = function(url) { $injection };"
+        browser.cefBrowser.executeJavaScript(js, "mermaid-open-link-bridge", 0)
     }
 
     private fun injectExportBridges() {

@@ -160,6 +160,12 @@ class MermaidStandaloneJsTest {
     }
 
     @Test
+    fun `standalone js installs link handler with openLinkBridge`() {
+        assertTrue(jsContent.contains("installLinkHandler"), "Should install the shared link click handler")
+        assertTrue(jsContent.contains("__openLinkBridge"), "Link clicks should route through the __openLinkBridge JCEF bridge")
+    }
+
+    @Test
     fun `standalone css has height 100vh`() {
         assertTrue(cssContent.contains("height: 100vh"), "Container should have height: 100vh for fit-to-window")
     }

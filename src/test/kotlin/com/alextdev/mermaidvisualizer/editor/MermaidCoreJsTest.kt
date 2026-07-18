@@ -159,4 +159,53 @@ class MermaidCoreJsTest {
     fun `core js configures maxTextSize`() {
         assertTrue(jsContent.contains("maxTextSize"), "Should configure maxTextSize for large diagrams")
     }
+
+    // --- Link handling tests ---
+
+    @Test
+    fun `core js exposes installLinkHandler`() {
+        assertTrue(jsContent.contains("installLinkHandler"), "Should have installLinkHandler function")
+        assertTrue(
+            jsContent.contains("installLinkHandler: installLinkHandler"),
+            "installLinkHandler should be exposed on __mermaidCore"
+        )
+    }
+
+    @Test
+    fun `core js link handler installs once per shadow root`() {
+        assertTrue(
+            jsContent.contains("WeakSet"),
+            "Should track handled shadow roots in a WeakSet (roots persist across re-renders)"
+        )
+    }
+
+    @Test
+    fun `core js link handler intercepts anchor clicks`() {
+        assertTrue(jsContent.contains("closest('a')"), "Should find the clicked anchor via closest")
+        assertTrue(jsContent.contains("preventDefault"), "Should prevent default navigation for anchor clicks")
+    }
+
+    @Test
+    fun `core js link handler reads raw href attributes first`() {
+        assertTrue(
+            jsContent.contains("getAttribute('xlink:href')"),
+            "Should read the raw xlink:href attribute (SVG anchors, avoids origin resolution)"
+        )
+    }
+
+    @Test
+    fun `core js link handler only forwards http urls`() {
+        assertTrue(jsContent.contains("isHttpUrl"), "Should pre-filter URLs to http(s) before calling openFn")
+    }
+
+    @Test
+    fun `core js link handler guards drag and double clicks`() {
+        assertTrue(jsContent.contains("e.detail"), "Should skip the second click of a double-click via e.detail")
+        assertTrue(jsContent.contains("Math.hypot"), "Should measure mouse travel to swallow drag-ending clicks")
+    }
+
+    @Test
+    fun `core js link handler blocks middle clicks`() {
+        assertTrue(jsContent.contains("auxclick"), "Should prevent default on auxclick to block middle-click popups")
+    }
 }

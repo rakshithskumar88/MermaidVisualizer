@@ -272,6 +272,68 @@
         return toolbar;
     }
 
+    // --- Link click handling ---
+    // Document-level link interceptors can't see into the Shadow DOM (clicks retarget
+    // to the host), so anchor clicks are caught here and routed via openFn.
+
+    // Shadow roots persist across re-renders — install once so listeners don't stack.
+    const linkHandledRoots = new WeakSet();
+
+    function findAnchorHref(anchor) {
+        // Raw attribute first — the resolved property absolutizes relative hrefs against the page origin.
+        const raw = anchor.getAttribute('href') || anchor.getAttribute('xlink:href');
+        if (raw) return raw;
+        if (typeof anchor.href === 'string') return anchor.href;
+        return (anchor.href && anchor.href.baseVal) || '';
+    }
+
+    function isHttpUrl(url) {
+        return /^https?:\/\//i.test(url);
+    }
+
+    function installLinkHandler(shadowRoot, openFn) {
+        if (!shadowRoot || linkHandledRoots.has(shadowRoot)) return;
+        linkHandledRoots.add(shadowRoot);
+
+        let mouseDownPos = null;
+
+        shadowRoot.addEventListener('mousedown', function (e) {
+            if (e.button === 0) mouseDownPos = { x: e.clientX, y: e.clientY };
+        });
+
+        shadowRoot.addEventListener('click', function (e) {
+            const anchor = e.target && e.target.closest ? e.target.closest('a') : null;
+            if (!anchor) {
+                mouseDownPos = null;
+                return;
+            }
+            e.preventDefault();
+            e.stopPropagation();
+
+            const downPos = mouseDownPos;
+            mouseDownPos = null;
+
+            if (e.detail > 1) return; // double-click: the first click already opened
+            // Swallow clicks ending a pan drag; keyboard activation has detail 0.
+            if (e.detail !== 0 && downPos) {
+                const dist = Math.hypot(e.clientX - downPos.x, e.clientY - downPos.y);
+                if (dist > 5) return;
+            }
+
+            const url = findAnchorHref(anchor).trim();
+            if (!isHttpUrl(url)) return;
+            openFn(url);
+        });
+
+        // Block middle-click popups (they bypass the click path).
+        shadowRoot.addEventListener('auxclick', function (e) {
+            if (e.target && e.target.closest && e.target.closest('a')) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    }
+
     // --- Error info parsing ---
 
     function parseErrorInfo(err) {
@@ -299,6 +361,7 @@
         extractSvg: extractSvg,
         extractPng: extractPng,
         createExportToolbar: createExportToolbar,
+        installLinkHandler: installLinkHandler,
         parseErrorInfo: parseErrorInfo,
         getCurrentTheme: function () { return currentTheme; },
         nextRenderId: function () { return 'mermaid-render-' + (renderCounter++); },
