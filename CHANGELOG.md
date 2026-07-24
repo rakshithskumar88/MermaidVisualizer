@@ -2,6 +2,10 @@
 
 All notable changes to the Mermaid Visualizer plugin will be documented in this file.
 
+## [1.10.0] - 2026-07-24
+
+- Add "Open in new tab" feature for Mermaid diagrams (#24)
+
 ## [1.9.1] - 2026-07-18
 
 - Open Mermaid click command links in the system browser (#22)
