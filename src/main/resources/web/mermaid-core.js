@@ -25,6 +25,7 @@
     const ICON_COPY = ['M5.5 2H12.5V12.5H5.5Z', 'M3.5 4.5V14H10.5'];
     const ICON_IMAGE = ['M2 3H14V13H2Z', 'M2 11L5.5 7.5L8 10L10.5 7.5L14 11'];
     const ICON_SAVE = ['M8 2V10', 'M4.5 7L8 10.5L11.5 7', 'M3 14H13'];
+    const ICON_OPEN = ['M13.5 9.5V13.5H2.5V2.5H6.5', 'M9.5 2.5H13.5V6.5', 'M7 9L13.5 2.5'];
 
     function createSvgIcon(paths) {
         const svg = document.createElementNS(SVG_NS, 'svg');
@@ -259,6 +260,9 @@
         const toolbar = document.createElement('div');
         toolbar.className = 'mermaid-export-toolbar';
 
+        if (callbacks.openInTab) {
+            toolbar.appendChild(createToolbarButton(ICON_OPEN, 'Open in new tab', function () { callbacks.openInTab(); }));
+        }
         if (callbacks.copySvg) {
             toolbar.appendChild(createToolbarButton(ICON_COPY, 'Copy SVG', function () { handleCopySvg(callbacks); }));
         }
@@ -354,6 +358,7 @@
 
     window.__mermaidCore = {
         base64ToUtf8: base64ToUtf8,
+        utf8ToBase64: utf8ToBase64,
         createSvgIcon: createSvgIcon,
         injectSvg: injectSvg,
         showError: showError,
@@ -368,6 +373,7 @@
         SVG_NS: SVG_NS,
         ICON_COPY: ICON_COPY,
         ICON_IMAGE: ICON_IMAGE,
-        ICON_SAVE: ICON_SAVE
+        ICON_SAVE: ICON_SAVE,
+        ICON_OPEN: ICON_OPEN
     };
 })();

@@ -147,6 +147,28 @@ class MermaidCoreJsTest {
         assertTrue(jsContent.contains("ICON_COPY"), "Should have ICON_COPY constant")
         assertTrue(jsContent.contains("ICON_IMAGE"), "Should have ICON_IMAGE constant")
         assertTrue(jsContent.contains("ICON_SAVE"), "Should have ICON_SAVE constant")
+        assertTrue(jsContent.contains("ICON_OPEN"), "Should have ICON_OPEN constant")
+        assertTrue(jsContent.contains("ICON_OPEN: ICON_OPEN"), "ICON_OPEN should be exposed on __mermaidCore")
+    }
+
+    @Test
+    fun `core js exposes utf8ToBase64 on public API`() {
+        assertTrue(
+            jsContent.contains("utf8ToBase64: utf8ToBase64"),
+            "utf8ToBase64 should be exposed on __mermaidCore (used by the Markdown open-in-tab callback)"
+        )
+    }
+
+    @Test
+    fun `core js toolbar has open in new tab button first`() {
+        assertTrue(jsContent.contains("callbacks.openInTab"), "createExportToolbar should support an openInTab callback")
+        assertTrue(jsContent.contains("'Open in new tab'"), "Open in new tab button should have its tooltip title")
+        val openIndex = jsContent.indexOf("callbacks.openInTab")
+        val copySvgIndex = jsContent.indexOf("'Copy SVG'")
+        assertTrue(
+            openIndex in 1 until copySvgIndex,
+            "Open in new tab should be the first button of the export group"
+        )
     }
 
     @Test

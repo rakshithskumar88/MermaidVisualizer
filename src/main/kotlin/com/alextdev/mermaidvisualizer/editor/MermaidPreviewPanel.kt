@@ -2,6 +2,7 @@ package com.alextdev.mermaidvisualizer.editor
 
 import com.alextdev.mermaidvisualizer.copyPngToClipboard
 import com.alextdev.mermaidvisualizer.copySvgToClipboard
+import com.alextdev.mermaidvisualizer.openDiagramInNewTab
 import com.alextdev.mermaidvisualizer.openExternalLink
 import com.alextdev.mermaidvisualizer.saveDiagramToFile
 import com.alextdev.mermaidvisualizer.settings.MermaidSettings
@@ -44,7 +45,9 @@ internal class MermaidPreviewPanel(
     private val saveQuery: JBCefJSQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val errorQuery: JBCefJSQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private val openLinkQuery: JBCefJSQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
+    private val openInTabQuery: JBCefJSQuery = JBCefJSQuery.create(browser as JBCefBrowserBase)
     private var errorCallback: ((String) -> Unit)? = null
+    private var lastRenderedSource: String? = null
 
     val component: JComponent get() = browser.component
 
@@ -56,6 +59,7 @@ internal class MermaidPreviewPanel(
         Disposer.register(parentDisposable, saveQuery)
         Disposer.register(parentDisposable, errorQuery)
         Disposer.register(parentDisposable, openLinkQuery)
+        Disposer.register(parentDisposable, openInTabQuery)
 
         scrollQuery.addHandler { fractionStr ->
             val fraction = fractionStr.toDoubleOrNull()
@@ -98,6 +102,15 @@ internal class MermaidPreviewPanel(
             null
         }
 
+        openInTabQuery.addHandler { _ ->
+            ApplicationManager.getApplication().invokeLater {
+                if (!browser.isDisposed) {
+                    lastRenderedSource?.let { openDiagramInNewTab(it, project) }
+                }
+            }
+            null
+        }
+
         browser.jbCefClient.addLoadHandler(object : CefLoadHandlerAdapter() {
             override fun onLoadEnd(cefBrowser: CefBrowser?, frame: CefFrame?, httpStatusCode: Int) {
                 if (frame?.isMain == true) {
@@ -111,6 +124,7 @@ internal class MermaidPreviewPanel(
                         injectExportBridges()
                         injectErrorBridge()
                         injectOpenLinkBridge()
+                        injectOpenInTabBridge()
                         pendingRender?.invoke()
                         pendingRender = null
                     }
@@ -184,6 +198,7 @@ internal class MermaidPreviewPanel(
 
     fun render(source: String, isDark: Boolean, forceThemeRefresh: Boolean = false, generation: Long = 0L) {
         if (browser.isDisposed) return
+        lastRenderedSource = source
         val encoded = BASE64_ENCODER.encodeToString(source.toByteArray(Charsets.UTF_8))
         val themeClass = if (isDark) "dark-theme" else ""
         val configJson = service<MermaidSettings>().toJsConfigJson()
@@ -246,6 +261,13 @@ internal class MermaidPreviewPanel(
         val injection = openLinkQuery.inject("url")
         val js = "window.__openLinkBridge = function(url) { $injection };"
         browser.cefBrowser.executeJavaScript(js, "mermaid-open-link-bridge", 0)
+    }
+
+    private fun injectOpenInTabBridge() {
+        if (browser.isDisposed) return
+        val injection = openInTabQuery.inject("payload")
+        val js = "window.__openInTabBridge = function(payload) { $injection };"
+        browser.cefBrowser.executeJavaScript(js, "mermaid-open-in-tab-bridge", 0)
     }
 
     private fun injectExportBridges() {

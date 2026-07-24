@@ -1,7 +1,9 @@
 package com.alextdev.mermaidvisualizer.editor
 
+import com.alextdev.mermaidvisualizer.lang.MermaidFileType
 import com.intellij.openapi.fileEditor.FileEditorPolicy
 import com.intellij.openapi.fileEditor.TextEditorWithPreview
+import com.intellij.testFramework.LightVirtualFile
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
 class MermaidEditorProviderTest : BasePlatformTestCase() {
@@ -18,6 +20,11 @@ class MermaidEditorProviderTest : BasePlatformTestCase() {
     fun testAcceptsMermaidFile() {
         val file = myFixture.configureByText("test.mermaid", "flowchart LR\n    A --> B")
         assertTrue(provider.accept(project, file.virtualFile))
+    }
+
+    fun testAcceptsLightVirtualFileWithMermaidFileType() {
+        val file = LightVirtualFile("diagram.mmd", MermaidFileType, "flowchart TD\n    A --> B")
+        assertTrue(provider.accept(project, file))
     }
 
     fun testRejectsTxtFile() {

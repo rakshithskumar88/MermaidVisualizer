@@ -14,7 +14,8 @@
     function createStandaloneToolbar() {
         if (typeof window.__copySvgBridge !== 'function' &&
             typeof window.__copyPngBridge !== 'function' &&
-            typeof window.__saveBridge !== 'function') {
+            typeof window.__saveBridge !== 'function' &&
+            typeof window.__openInTabBridge !== 'function') {
             return null;
         }
 
@@ -27,6 +28,7 @@
                     return document.body.classList.contains('dark-theme');
                 }, cb);
             },
+            openInTab: typeof window.__openInTabBridge === 'function' ? function () { window.__openInTabBridge(''); } : null,
             copySvg: typeof window.__copySvgBridge === 'function' ? function (b64) { window.__copySvgBridge(b64); } : null,
             copyPng: typeof window.__copyPngBridge === 'function' ? function (b64) { window.__copyPngBridge(b64); } : null,
             save: typeof window.__saveBridge === 'function' ? function (payload) { window.__saveBridge(payload); } : null
