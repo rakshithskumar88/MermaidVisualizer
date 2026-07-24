@@ -28,6 +28,7 @@ IntelliJ plugin for [Mermaid](https://mermaid.js.org/) diagrams — live preview
 - Renders ` ```mermaid ` code blocks in the built-in Markdown preview
 - Dedicated split editor for `.mmd` and `.mermaid` files with live preview
 - Zoom (Ctrl+wheel), pan (click & drag), fit-to-window & 1:1 controls
+- **Open in new tab** — pop any diagram (Markdown preview or `.mmd` editor) into its own full-size preview tab; drag it out to a separate window if you like
 - Export diagrams as SVG or PNG — copy to clipboard or save to file
 - Scroll synchronization between the text editor and the preview
 - Automatic dark/light theme detection and switching

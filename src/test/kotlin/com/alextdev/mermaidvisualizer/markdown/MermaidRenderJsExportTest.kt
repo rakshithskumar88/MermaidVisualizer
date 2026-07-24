@@ -72,6 +72,19 @@ class MermaidRenderJsExportTest {
         assertTrue(jsContent.contains("mermaid/copy-svg"), "Should use mermaid/copy-svg tag")
         assertTrue(jsContent.contains("mermaid/copy-png"), "Should use mermaid/copy-png tag")
         assertTrue(jsContent.contains("mermaid/save"), "Should use mermaid/save tag")
+        assertTrue(jsContent.contains("mermaid/open-in-tab"), "Should use mermaid/open-in-tab tag")
+    }
+
+    @Test
+    fun `render js open in tab sends base64 source from data-source attribute`() {
+        assertTrue(
+            jsContent.contains("pipe.post('mermaid/open-in-tab'"),
+            "Open in new tab button should post the source to Kotlin via messagePipe"
+        )
+        assertTrue(
+            jsContent.contains("core.utf8ToBase64(container.getAttribute(ATTR_SOURCE) || '')"),
+            "Open in new tab should read the retained data-source attribute and base64-encode it"
+        )
     }
 
     @Test

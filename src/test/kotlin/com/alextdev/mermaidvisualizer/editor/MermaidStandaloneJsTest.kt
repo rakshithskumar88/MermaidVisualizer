@@ -120,6 +120,19 @@ class MermaidStandaloneJsTest {
     }
 
     @Test
+    fun `standalone js wires open in tab bridge into toolbar and guard`() {
+        assertTrue(jsContent.contains("__openInTabBridge"), "Should reference __openInTabBridge")
+        assertTrue(
+            jsContent.contains("typeof window.__openInTabBridge !== 'function'"),
+            "The no-bridges guard should also consider __openInTabBridge"
+        )
+        assertTrue(
+            jsContent.contains("openInTab: typeof window.__openInTabBridge === 'function'"),
+            "The openInTab callback should be passed to core.createExportToolbar only when the bridge exists"
+        )
+    }
+
+    @Test
     fun `standalone js references toolbar CSS class for zoom init`() {
         assertTrue(jsContent.contains("mermaid-export-toolbar"), "Should reference mermaid-export-toolbar CSS class for zoom init")
     }

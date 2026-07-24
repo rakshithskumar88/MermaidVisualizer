@@ -11,6 +11,7 @@
             <li>Live rendering of <code>```mermaid</code> code blocks in the Markdown preview</li>
             <li>Dedicated split editor with live preview for <code>.mmd</code> and <code>.mermaid</code> files</li>
             <li>Zoom (<code>Ctrl+wheel</code>), pan, fit-to-window and 1:1 controls</li>
+            <li>Open in new tab — pop any diagram into its own full-size preview tab</li>
             <li>Export diagrams as SVG or PNG — copy to clipboard or save to file</li>
             <li>Automatic dark/light theme matching with your IDE</li>
             <li>All 32+ Mermaid diagram types — fully offline with bundled Mermaid.js (v11.16.0)</li>

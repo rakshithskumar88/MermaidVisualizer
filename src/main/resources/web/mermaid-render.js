@@ -79,6 +79,7 @@
         return core.createExportToolbar({
             extractSvg: function () { return core.extractSvg(container); },
             extractPng: function (scale, cb) { core.extractPng(container, scale, isDarkTheme, cb); },
+            openInTab: function () { pipe.post('mermaid/open-in-tab', core.utf8ToBase64(container.getAttribute(ATTR_SOURCE) || '')); },
             copySvg: function (b64) { pipe.post('mermaid/copy-svg', b64); },
             copyPng: function (b64) { pipe.post('mermaid/copy-png', b64); },
             save: function (payload) { pipe.post('mermaid/save', payload); }
