@@ -46,3 +46,10 @@ src/main/gen/
 ### IntelliJ Platform Gradle Plugin ###
 .intellijPlatform/
 /META-INF/
+
+## Nix environment
+flake.nix
+flake.lock
+.envrc
+cloudflare-truststore.jks
+.direnv/
