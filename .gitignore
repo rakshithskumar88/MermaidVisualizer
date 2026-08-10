@@ -53,3 +53,19 @@ flake.lock
 .envrc
 cloudflare-truststore.jks
 .direnv/
+
+# devoxxgenie proxy
+devoxx_proxy.py
+.devoxxgenie/
+
+# mcp server folders
+node_modules/
+# Engram AI agent memory
+.engram/
+# DevoxxGenie
+backlog/
+# current state check
+test_features.mmd
+# MCP servers npm packages
+package.json
+package-lock.json
