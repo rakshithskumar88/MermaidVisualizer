@@ -56,6 +56,7 @@ cloudflare-truststore.jks
 
 # devoxxgenie proxy
 devoxx_proxy.py
+intelligent_proxy.py
 .devoxxgenie/
 
 # mcp server folders
