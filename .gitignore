@@ -71,3 +71,7 @@ test_features.mmd
 # MCP servers npm packages
 package.json
 package-lock.json
+
+# RAG Setup
+jetbrains_sdk_docs/
+download_all_sdk_docs.py
