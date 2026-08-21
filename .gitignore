@@ -75,3 +75,4 @@ package-lock.json
 # RAG Setup
 jetbrains_sdk_docs/
 download_all_sdk_docs.py
+__pycache__/
